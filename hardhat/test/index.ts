@@ -1,19 +1,38 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
-describe("Greeter", function () {
-  it("Should return the new greeting once it's changed", async function () {
-    const Greeter = await ethers.getContractFactory("Greeter");
-    const greeter = await Greeter.deploy("Hello, world!");
-    await greeter.deployed();
+import { NftVestingDao, NftVestingDao__factory } from "../typechain";
 
-    expect(await greeter.greet()).to.equal("Hello, world!");
+describe("NftVestingDao", function () {
+  let nftToken: NftVestingDao;
+  let owner: SignerWithAddress;
+  let addr1: SignerWithAddress;
+  let addr2: SignerWithAddress;
+  let addrs: SignerWithAddress[];
 
-    const setGreetingTx = await greeter.setGreeting("Hola, mundo!");
+  beforeEach(async function () {
+    [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
-    // wait until the transaction is mined
-    await setGreetingTx.wait();
+    const nftFactory = (await ethers.getContractFactory(
+      "NftVestingDao",
+      owner
+    )) as NftVestingDao__factory;
 
-    expect(await greeter.greet()).to.equal("Hola, mundo!");
+    nftToken = await nftFactory.deploy();
+    await nftToken.deployed();
+
+    // console.log("owner", owner.address);
+    // console.log("addr1", addr1.address);
+    // console.log("addr2", addr2.address);
+  });
+
+  it("Should return the 'owner' as contract owner", async function () {
+    expect(await nftToken.owner()).to.equal(owner.address);
+  });
+
+  it("Contract owner should mint token and increase balance", async function () {
+    await nftToken.mint(owner.address);
+    expect(await nftToken.balanceOf(owner.address)).to.equal(1);
   });
 });

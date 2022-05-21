@@ -1,12 +1,27 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.6;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract NftVestingDao is ERC721Enumerable, Ownable {
-    constructor() ERC721("VestingNFT", "VNFT") {}
+contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokedIdTracker;
+
+    constructor() ERC721("VestingNFT", "VNFT") {
+        /**
+        @dev set the royalty percentage(5%) 
+        */
+        setRoyaltyInfo(msg.sender, 500);
+    }
+
+    /**
+    @dev _price is the price of one NFT
+     */
+    uint256 public _price = 0.01 ether;
 
     /**
     @dev money raised and earned in treasury
@@ -56,7 +71,15 @@ contract NftVestingDao is ERC721Enumerable, Ownable {
      */
     event Unnested(uint256 indexed tokenId);
 
+    function mint(address _to) public payable {
+        require(msg.value >= _price, "Ether sent is not correct");
+        super._mint(_to, _tokedIdTracker.current());
+        _tokedIdTracker.increment();
+        treasuryFund += msg.value;
+    }
+
     /**
+    
     {@notice Returns the length of time, in seconds, that the Moonbird has
     nested.
     @dev Nesting is tied to a specific Moonbird, not to the owner, so it doesn't
@@ -179,17 +202,42 @@ contract NftVestingDao is ERC721Enumerable, Ownable {
         nestingTransfer = 1;
     }
 
+    function setRoyaltyInfo(address _receiver, uint96 _feeNumerator)
+        public
+        onlyOwner
+    {
+        _setDefaultRoyalty(_receiver, _feeNumerator);
+    }
+
     /**
     @dev Block transfers while nesting.
     */
     function _beforeTokenTransfer(
-        address,
-        address,
+        address from,
+        address to,
         uint256 tokenId
-    ) internal view override {
+    ) internal override(ERC721, ERC721Enumerable) {
         require(
             nestingStarted[tokenId] == 0 || nestingTransfer == 2,
             "nesting"
         );
+        super._beforeTokenTransfer(from, to, tokenId);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721Enumerable, ERC721Royalty)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+
+    /**
+    @dev overrides fucntions for royaltis
+    */
+    function _burn(uint256 tokenId) internal override(ERC721, ERC721Royalty) {
+        super._burn(tokenId);
+        super._resetTokenRoyalty(tokenId);
     }
 }

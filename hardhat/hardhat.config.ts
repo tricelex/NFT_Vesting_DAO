@@ -7,15 +7,11 @@ import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 
-import { getExpectedContractAddress } from "./tasks/utils";
-
 import {
-  DaoNftToken,
-  DaoNftToken__factory,
+  NftVestingDao,
+  NftVestingDao__factory,
   MyGovernor,
   MyGovernor__factory,
-  Timelock,
-  Timelock__factory,
 } from "./typechain";
 
 dotenv.config();
@@ -31,56 +27,34 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 });
 
 task("fugazi").setAction(async function (_, { ethers, run }) {
-  const timelockDelay = 2;
-
-  const tokenFactory: DaoNftToken__factory = await ethers.getContractFactory(
-    "DaoNftToken"
+  const nftFactory: NftVestingDao__factory = await ethers.getContractFactory(
+    "NftVestingDao"
   );
 
-  const signerAddress = await tokenFactory.signer.getAddress();
-  const signer = await ethers.getSigner(signerAddress);
-
-  const governorExpectedAddress = await getExpectedContractAddress(signer);
-
-  const token: DaoNftToken = <DaoNftToken>await tokenFactory.deploy();
+  const token: NftVestingDao = <NftVestingDao>await nftFactory.deploy();
   await token.deployed();
-
-  const timelockFactory: Timelock__factory = await ethers.getContractFactory(
-    "Timelock"
-  );
-  const timelock: Timelock = <Timelock>(
-    await timelockFactory.deploy(governorExpectedAddress, timelockDelay)
-  );
-  await timelock.deployed();
 
   const governorFactory: MyGovernor__factory = await ethers.getContractFactory(
     "MyGovernor"
   );
   const governor: MyGovernor = <MyGovernor>(
-    await governorFactory.deploy(token.address, timelock.address)
+    await governorFactory.deploy(token.address)
   );
   await governor.deployed();
 
   // Verify contracts on Etherscan
-  //   await run("verify:verify", {
-  //     address: token.address,
-  //   });
+  // await run("verify:verify", {
+  //   address: token.address,
+  // });
 
-  //   await run("verify:verify", {
-  //     address: timelock.address,
-  //     constructorArguments: [governor.address, timelockDelay],
-  //   });
-
-  //   await run("verify:verify", {
-  //     address: governor.address,
-  //     constructorArguments: [token.address, timelock.address],
-  //   });
+  // await run("verify:verify", {
+  //   address: governor.address,
+  //   constructorArguments: [token.address],
+  // });
 
   console.log("Dao deployed to: ", {
-    governorExpectedAddress,
-    // governor: governor.address,
-    timelock: timelock.address,
     token: token.address,
+    governor: governor.address,
   });
 });
 
@@ -97,8 +71,8 @@ const config: HardhatUserConfig = {
     hardhat: {
       // throwOnTransactionFailures: true,
       // throwOnCallFailures: true,
-      allowUnlimitedContractSize: true,
-      blockGasLimit: 0x1fffffffffffff,
+      // allowUnlimitedContractSize: true,
+      // blockGasLimit: 0x1fffffffffffff,
       // accounts: accounts()
     },
     ropsten: {
