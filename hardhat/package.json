@@ -37,6 +37,7 @@
   },
   "scripts": {
     "fugazi": "hardhat fugazi",
-    "lol": "hardhat lol"
+    "lol": "hardhat lol",
+    "compile": "hardhat compile"
   }
 }

@@ -5,10 +5,8 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
-contract NftVestingDao is ERC721Enumerable, Ownable
-{
-
-    constructor() ERC721("VestingNFT", "VNFT") { }
+contract NftVestingDao is ERC721Enumerable, Ownable {
+    constructor() ERC721("VestingNFT", "VNFT") {}
 
     /**
     @dev money raised and earned in treasury
@@ -92,7 +90,7 @@ contract NftVestingDao is ERC721Enumerable, Ownable
     */
     function toggleNesting(uint256 tokenId)
         external
-        /** onlyApprovedOrOwner(tokenId) change to onlyOwner*/
+    /** onlyApprovedOrOwner(tokenId) change to onlyOwner*/
     {
         uint256 start = nestingStarted[tokenId];
         if (start == 0) {
@@ -141,10 +139,14 @@ contract NftVestingDao is ERC721Enumerable, Ownable
         //reset nesting restarted
         nestingRestarted[tokenId] = block.timestamp;
 
-        return elapsedClaimer / totalElapsed * rewardsFund;
+        return (elapsedClaimer / totalElapsed) * rewardsFund;
     }
 
-    function transferRewardsFund(uint256 _rewardsTransfer) external onlyOwner returns (uint256, uint256) {
+    function transferRewardsFund(uint256 _rewardsTransfer)
+        external
+        onlyOwner
+        returns (uint256, uint256)
+    {
         require(_rewardsTransfer < treasuryFund, "not enough funds available");
         uint256 newBalanceTreasuryFund = treasuryFund - _rewardsTransfer;
         uint256 newBalanceRewardsFund = rewardsFund + _rewardsTransfer;
@@ -185,6 +187,9 @@ contract NftVestingDao is ERC721Enumerable, Ownable
         address,
         uint256 tokenId
     ) internal view override {
-        require(nestingStarted[tokenId] == 0 || nestingTransfer == 2, "nesting");
+        require(
+            nestingStarted[tokenId] == 0 || nestingTransfer == 2,
+            "nesting"
+        );
     }
 }
