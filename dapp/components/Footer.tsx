@@ -1,10 +1,8 @@
 import dynamic from 'next/dynamic';
 import {
   FaHome,
-  FaTwitter,
-  FaDiscord,
   FaShip,
-  FaInfinity,
+  FaEthereum,
 } from 'react-icons/fa';
 
 import Container from './Container';
@@ -44,28 +42,6 @@ export default function Footer() {
               <FaHome />
             </NextLink>
             <a
-              href={projectConfig.twitterUrl}
-              aria-label={`${projectConfig.nftName} on Twitter`}
-              rel="noopener noreferrer"
-              target="_blank"
-              data-tip="Twitter"
-              data-for="footer"
-              className="bg-gray-700 hover:bg-gray-600 rounded-full p-2"
-            >
-              <FaTwitter />
-            </a>
-            <a
-              href={projectConfig.discordUrl}
-              aria-label={`${projectConfig.nftName} on Discord`}
-              rel="noopener noreferrer"
-              target="_blank"
-              data-tip="Discord"
-              data-for="footer"
-              className="bg-gray-700 hover:bg-gray-600 rounded-full p-2"
-            >
-              <FaDiscord />
-            </a>
-            <a
               href={projectConfig.openseaCollectionUrl}
               aria-label={`${projectConfig.nftName} on OpenSea`}
               rel="noopener noreferrer"
@@ -81,11 +57,11 @@ export default function Footer() {
               aria-label={`Contract of ${projectConfig.nftName}`}
               rel="noopener noreferrer"
               target="_blank"
-              data-tip="PolygonScan"
+              data-tip="EtherScan"
               data-for="footer"
               className="bg-gray-700 hover:bg-gray-600 rounded-full p-2"
             >
-              <FaInfinity />
+              <FaEthereum />
             </a>
           </div>
         </div>
