@@ -70,7 +70,7 @@ describe("NftVestingDao", function () {
 
   });
 
-  it("Should not be transfer the nested NFT", async function () {
+  it("Should not be safeTransferWhileNesting the nested NFT", async function () {
     await nftToken.mint(1);
     
     await nftToken.setNestingOpen(true);
@@ -88,7 +88,25 @@ describe("NftVestingDao", function () {
 
   });
 
-  it("Should transfer the nested NFT", async function () {
+  it("Should not be transfer the nested NFT", async function () {
+    await nftToken.mint(1);
+    
+    await nftToken.setNestingOpen(true);
+    //tokenId 1
+     await nftToken.toggleNesting(1);
+    
+     // go foward in time by 3600 ms
+    await network.provider.send("evm_increaseTime", [3600])
+    await network.provider.send("evm_mine") 
+
+    var [nested, ,total] = await nftToken.nestingPeriod(1);
+    //console.log(nested, current, total);
+   
+    await expect(nftToken.transferFrom(owner.address, addr1.address, 1)).to.be.revertedWith('nesting');
+
+  });
+
+  it("Should safeTransferWhileNesting the nested NFT", async function () {
     await nftToken.mint(1);
     
     await nftToken.setNestingOpen(true);
