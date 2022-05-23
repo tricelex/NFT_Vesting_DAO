@@ -1,8 +1,9 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 import { NftVestingDao, NftVestingDao__factory } from "../typechain";
+import { BigNumber } from "ethers";
 
 describe("NftVestingDao", function () {
   let nftToken: NftVestingDao;
@@ -17,7 +18,7 @@ describe("NftVestingDao", function () {
     const nftFactory = (await ethers.getContractFactory(
       "NftVestingDao",
       owner
-    )) as NftVestingDao__factory;
+    ));
 
     nftToken = await nftFactory.deploy();
     await nftToken.deployed();
@@ -39,4 +40,63 @@ describe("NftVestingDao", function () {
   it("Total Supply at deployment should be zero", async function () {
     expect(await nftToken.totalSupply()).to.equal(0);
   });
+
+  it("Should not stake NFT", async function () {
+    await nftToken.mint(1);
+    
+    await expect(nftToken.toggleNesting(1)).to.be.revertedWith('nesting closed');
+    expect(await nftToken.totalSupply()).to.equal(1);
+
+  });
+
+  it("Should stake NFT", async function () {
+    await nftToken.mint(1);
+    
+    await nftToken.setNestingOpen(true);
+    //tokenId 1
+     await nftToken.toggleNesting(1);
+    
+     // go foward in time by 3600 ms
+    await network.provider.send("evm_increaseTime", [3600])
+    await network.provider.send("evm_mine") 
+
+    var [nested,current,total] = await nftToken.nestingPeriod(1);
+    //console.log(nested, current, total);
+   
+    expect(total).to.eq(ethers.BigNumber.from(3600));
+    expect(nested).to.be.true;
+   
+
+    expect(await nftToken.totalSupply()).to.equal(1);
+
+  });
+
+  it("Should unstake NFT", async function () {
+    await nftToken.mint(1);
+    
+    await nftToken.setNestingOpen(true);
+    
+    //tokenId 1 nested
+     await expect(nftToken.toggleNesting(1)).to.emit(nftToken, "Nested");
+    
+     // go foward in time by 3600 ms
+    await network.provider.send("evm_increaseTime", [3600])
+    await network.provider.send("evm_mine") 
+
+    var [nested,,] = await nftToken.nestingPeriod(1);
+   
+    expect(nested).to.be.true;
+   
+    //token 1 unested
+    await expect(nftToken.toggleNesting(1)).to.emit(nftToken, "Unnested");
+
+    var [nested,,] = await nftToken.nestingPeriod(1);
+
+    expect(nested).to.be.false;
+
+    expect(await nftToken.totalSupply()).to.equal(1);
+
+  });
+
+
 });
