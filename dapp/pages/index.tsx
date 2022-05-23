@@ -85,7 +85,7 @@ const Home: NextPage = () => {
         </Prose>
       </div>
 
-      {nftBalance && nftBalance > 10 ? (
+      {nftBalance && nftBalance > 1 ? (
         <>
           <div className="py-8">
             <Prose>
