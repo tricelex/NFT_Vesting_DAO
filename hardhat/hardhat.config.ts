@@ -34,13 +34,13 @@ task("fugazi").setAction(async function (_, { ethers, run }) {
   const token: NftVestingDao = <NftVestingDao>await nftFactory.deploy();
   await token.deployed();
 
-  const governorFactory: MyGovernor__factory = await ethers.getContractFactory(
-    "MyGovernor"
-  );
-  const governor: MyGovernor = <MyGovernor>(
-    await governorFactory.deploy(token.address)
-  );
-  await governor.deployed();
+  // const governorFactory: MyGovernor__factory = await ethers.getContractFactory(
+  //   "MyGovernor"
+  // );
+  // const governor: MyGovernor = <MyGovernor>(
+  //   await governorFactory.deploy(token.address)
+  // );
+  // await governor.deployed();
 
   // Verify contracts on Etherscan
   // await run("verify:verify", {
@@ -54,7 +54,7 @@ task("fugazi").setAction(async function (_, { ethers, run }) {
 
   console.log("Dao deployed to: ", {
     token: token.address,
-    governor: governor.address,
+    // governor: governor.address,
   });
 });
 
@@ -68,13 +68,6 @@ task("lol", "Prints the Laughabkles", async (taskArgs, hre) => {
 const config: HardhatUserConfig = {
   solidity: "0.8.6",
   networks: {
-    hardhat: {
-      // throwOnTransactionFailures: true,
-      // throwOnCallFailures: true,
-      // allowUnlimitedContractSize: true,
-      // blockGasLimit: 0x1fffffffffffff,
-      // accounts: accounts()
-    },
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
       accounts:

@@ -8,9 +8,6 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokedIdTracker;
-
     constructor() ERC721("VestingNFT", "VNFT") {
         /**
         @dev set the royalty percentage(5%) 
@@ -22,6 +19,16 @@ contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
     @dev _price is the price of one NFT
      */
     uint256 public _price = 0.01 ether;
+
+    /**
+    @dev maxMintAmount is the max number of NFTs that can be minted at once
+     */
+    uint256 public maxMintAmount = 10;
+
+    /**
+    @dev maxSupply is the max supply of NFTs
+     */
+    uint256 public maxSupply = 10000;
 
     /**
     @dev money raised and earned in treasury
@@ -71,10 +78,19 @@ contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
      */
     event Unnested(uint256 indexed tokenId);
 
-    function mint(address _to) public payable {
-        require(msg.value >= _price, "Ether sent is not correct");
-        super._mint(_to, _tokedIdTracker.current());
-        _tokedIdTracker.increment();
+    function mint(uint256 _mintAmount) public payable {
+        uint256 supply = totalSupply();
+        require(_mintAmount > 0);
+        require(_mintAmount <= maxMintAmount);
+        require(supply + _mintAmount <= maxSupply);
+
+        if (msg.sender != owner()) {
+            require(msg.value >= _price * _mintAmount);
+        }
+
+        for (uint256 i = 1; i <= _mintAmount; i++) {
+            super._mint(msg.sender, supply + i);
+        }
         treasuryFund += msg.value;
     }
 
@@ -239,5 +255,13 @@ contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
     function _burn(uint256 tokenId) internal override(ERC721, ERC721Royalty) {
         super._burn(tokenId);
         super._resetTokenRoyalty(tokenId);
+    }
+
+    function withdraw() public payable onlyOwner {
+        (bool success, ) = payable(owner()).call{value: address(this).balance}(
+            ""
+        );
+        require(success);
+        treasuryFund = address(this).balance;
     }
 }

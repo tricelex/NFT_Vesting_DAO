@@ -5,6 +5,7 @@ import Image from "next/image";
 import Layout from "../components/Layout";
 import Prose from "../components/Prose";
 import Minting from "../components/Minting";
+import Staking from "../components/Staking";
 import Faq from "../components/Faq";
 import Roadmap from "../components/Roadmap";
 import Team from "../components/Team";
@@ -43,17 +44,23 @@ const Home: NextPage = () => {
 
       <div className="bg-gray-800 py-8">
         <Prose>
-          <Faq />
+          <Staking />
         </Prose>
       </div>
 
       <div className="py-8">
         <Prose>
-          <Roadmap />
+          <Faq />
         </Prose>
       </div>
 
       <div className="bg-gray-800 py-8">
+        <Prose>
+          <Roadmap />
+        </Prose>
+      </div>
+
+      <div className="py-8">
         <Prose>
           <Team />
         </Prose>

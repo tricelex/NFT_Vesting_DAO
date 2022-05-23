@@ -7,16 +7,16 @@ const projectConfig = {
 
   maxMintAmountPerTxn: 10,
 
-  mintCost: process.env.NODE_ENV === "production" ? 100 : 0.01,
+  mintCost: process.env.NODE_ENV === "production" ? 0.01 : 0.01,
 
   networkName:
     process.env.NODE_ENV === "production"
-      ? "Polygon Mainnet" // 'Ethereum Mainnet'
-      : "Mumbai Testnet", // 'Rinkeby Testnet'
+      ? "Rinkeby Testnet" // 'Ethereum Mainnet'
+      : "Rinkeby Testnet", // 'Rinkeby Testnet'
 
-  chainName: "MATIC", // 'ETH'
+  chainName: "RINKEBY", // 'ETH'
 
-  chainId: process.env.NODE_ENV === "production" ? 137 : 80001, // Ethereum (1), Rinkeby (4)
+  chainId: process.env.NODE_ENV === "production" ? 4 : 4, // Ethereum (1), Rinkeby (4)
 
   siteDomain: "www.yourdomain.com",
 
@@ -38,13 +38,14 @@ const projectConfig = {
 
   contractAddress:
     process.env.NODE_ENV === "production"
-      ? "your_mainnet_contract_address"
-      : "your_testnet_contract_address",
+      ? "0x749b46A655763a2c2c7CF252B88D7F9EE95432D2"
+      : "0x749b46A655763a2c2c7CF252B88D7F9EE95432D2",
 
   scanUrl:
     process.env.NODE_ENV === "production"
-      ? "https://polygonscan.com/address/your_polygon_contract_address"
-      : "https://mumbai.polygonscan.com/address/your_mumbai_contract_address",
+      ? "https://rinkeby.etherscan.io/address/0x749b46A655763a2c2c7CF252B88D7F9EE95432D2"
+      : "https://rinkeby.etherscan.io/address/0x749b46A655763a2c2c7CF252B88D7F9EE95432D2",
+  // : "https://mumbai.polygonscan.com/address/your_mumbai_contract_address",
   // 'https://etherscan.io/address/your_ethereum_contract_address'
   // 'https://rinkeby.etherscan.io/address/your_rinkeby_contract_address'
 };

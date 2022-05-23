@@ -31,8 +31,12 @@ describe("NftVestingDao", function () {
     expect(await nftToken.owner()).to.equal(owner.address);
   });
 
-  it("Contract owner should mint token and increase balance", async function () {
-    await nftToken.mint(owner.address);
-    expect(await nftToken.balanceOf(owner.address)).to.equal(1);
+  // it("Contract owner should mint token and increase balance", async function () {
+  //   await nftToken.mint(owner.address);
+  //   expect(await nftToken.balanceOf(owner.address)).to.equal(1);
+  // });
+
+  it("Total Supply at deployment should be zero", async function () {
+    expect(await nftToken.totalSupply()).to.equal(0);
   });
 });
