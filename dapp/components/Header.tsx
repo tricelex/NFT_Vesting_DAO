@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useEffect } from "react";
 import { useWeb3React } from "@web3-react/core";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
-import { FaTwitter, FaDiscord, FaShip, FaInfinity } from "react-icons/fa";
+import { FaShip, FaEthereum } from "react-icons/fa";
 
 import ConnectButton from "./ConnectButton";
 import Container from "./Container";
@@ -62,27 +62,6 @@ export default function Header() {
                 effect="solid"
                 textColor="#e2e8f0"
               />
-              <a
-                href={projectConfig.twitterUrl}
-                aria-label={`${projectConfig.nftName} on Twitter`}
-                rel="noopener noreferrer"
-                target="_blank"
-                data-tip="Twitter"
-                data-for="header"
-                className="bg-gray-700 hover:bg-gray-600 rounded-full p-2"
-              >
-                <FaTwitter />
-              </a>
-              <a
-                href={projectConfig.discordUrl}
-                aria-label={`${projectConfig.nftName} on Discord`}
-                rel="noopener noreferrer"
-                target="_blank"
-                data-tip="Discord"
-                data-for="header"
-                className="bg-gray-700 hover:bg-gray-600 rounded-full p-2"
-              >
-                <FaDiscord />
               </a>
               <a
                 href={projectConfig.openseaCollectionUrl}
@@ -100,11 +79,11 @@ export default function Header() {
                 aria-label={`Contract of ${projectConfig.nftName}`}
                 rel="noopener noreferrer"
                 target="_blank"
-                data-tip="PolygonScan"
+                data-tip="EtherScan"
                 data-for="header"
                 className="bg-gray-700 hover:bg-gray-600 rounded-full p-2"
               >
-                <FaInfinity />
+                <FaEthereum />
               </a>
 
               {active && account ? (
