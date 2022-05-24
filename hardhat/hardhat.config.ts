@@ -58,7 +58,7 @@ task("fugazi").setAction(async function (_, { ethers, run }) {
   });
 });
 
-task("lol", "Prints the Laughabkles", async (taskArgs, hre) => {
+task("lol", "Prints the Laughables", async (taskArgs, hre) => {
   console.log("Dao deployed to: HAHAHAHAHAHAHAHAHAHAH");
 });
 

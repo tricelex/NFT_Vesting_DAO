@@ -57,17 +57,6 @@ export default function Minting() {
     }
   }
 
-  function decrementMintAmount() {
-    if (mintAmount > 1) {
-      setMintAmount(mintAmount - 1);
-    }
-  }
-
-  function incrementMintAmount() {
-    if (mintAmount < projectConfig.maxMintAmountPerTxn) {
-      setMintAmount(mintAmount + 1);
-    }
-  }
 
   useEffect(() => {
     if (!active) {
@@ -118,31 +107,6 @@ export default function Minting() {
           <p className="text-gray-400">(excluding gas fees)</p>
         </div>
 
-        <div className="flex justify-center items-center space-x-4">
-          <IconContext.Provider value={{ size: "1.5em" }}>
-            <button
-              type="button"
-              className={mintAmount <= 1 ? "text-gray-500 cursor-default" : ""}
-              onClick={decrementMintAmount}
-              disabled={false}
-            >
-              <FaMinusCircle />
-            </button>
-            <span className="text-xl">{mintAmount}</span>
-            <button
-              type="button"
-              className={
-                mintAmount >= projectConfig.maxMintAmountPerTxn
-                  ? "text-gray-500 cursor-default"
-                  : ""
-              }
-              onClick={incrementMintAmount}
-              disabled={false}
-            >
-              <FaPlusCircle />
-            </button>
-          </IconContext.Provider>
-        </div>
 
         <div className="flex justify-center">
           {active && !connErrMsg ? (

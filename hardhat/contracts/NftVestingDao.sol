@@ -23,12 +23,12 @@ contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
     /**
     @dev maxMintAmount is the max number of NFTs that can be minted at once
      */
-    uint256 public maxMintAmount = 10;
+    uint256 public maxMintAmount = 1;
 
     /**
     @dev maxSupply is the max supply of NFTs
      */
-    uint256 public maxSupply = 10000;
+    uint256 public maxSupply = 100;
 
     /**
     @dev money raised and earned in treasury
@@ -129,11 +129,20 @@ contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
         total = current + nestingTotal[tokenId];
     }
 
+    function checkIfNesting(uint256 tokenId)
+        public
+        view
+        returns (bool nesting)
+    {
+        return nestingStarted[tokenId] != 0;
+    }
+
     /**
     @notice Changes the Moonbird's nesting status.
     */
     function toggleNesting(uint256 tokenId)
         external
+        tokenOwner(tokenId)
     /** onlyApprovedOrOwner(tokenId) change to onlyOwner*/
     {
         uint256 start = nestingStarted[tokenId];
@@ -149,21 +158,8 @@ contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
         }
     }
 
-    function claimReward(uint256 tokenId) external payable tokenOwner(tokenId) returns (uint256)  {
-        require(rewardsFund > 0, "no rewards to be claimed");
-
-        uint256 reward = _claimableReward(tokenId);
-
-        address addr = msg.sender;
-        address payable wallet = payable(addr);
-        wallet.transfer(reward);
-
-        return reward;
-    }
-
     //claim reward from fund based on ratio of user's stake against team stake
-    function _claimableReward(uint256 tokenId) internal tokenOwner(tokenId) returns (uint256) {
-
+    function claimableReward(uint256 tokenId) external returns (uint256) {
         //elapsed time for claimer
         uint256 elapsedClaimer = block.timestamp - nestingRestarted[tokenId];
 
@@ -183,6 +179,23 @@ contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
         nestingRestarted[tokenId] = block.timestamp;
 
         return (elapsedClaimer / totalElapsed) * rewardsFund;
+    }
+
+    function claimReward(uint256 tokenId)
+        external
+        payable
+        tokenOwner(tokenId)
+        returns (uint256)
+    {
+        require(rewardsFund > 0, "no rewards to be claimed");
+
+        uint256 reward = this.claimableReward(tokenId);
+
+        address addr = msg.sender;
+        address payable wallet = payable(addr);
+        wallet.transfer(reward);
+
+        return reward;
     }
 
     function transferRewardsFund(uint256 _rewardsTransfer)
@@ -216,7 +229,10 @@ contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
         address to,
         uint256 tokenId
     ) external tokenOwner(tokenId) {
-        require(from == ownerOf(tokenId) && to == ownerOf(tokenId), "only own account transfers");
+        require(
+            from == ownerOf(tokenId) && to == ownerOf(tokenId),
+            "only own account transfers"
+        );
         nestingTransfer = 2;
         safeTransferFrom(from, to, tokenId);
         nestingTransfer = 1;
