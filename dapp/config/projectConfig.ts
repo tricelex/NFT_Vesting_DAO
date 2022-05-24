@@ -38,13 +38,13 @@ const projectConfig = {
 
   contractAddress:
     process.env.NODE_ENV === "production"
-      ? "0x11A5b3D9113aCD9603134d98263A0A26FEA1D8D4"
-      : "0x11A5b3D9113aCD9603134d98263A0A26FEA1D8D4",
+      ? "0x336038b39daebF51C8FFA57350F49d9D48D2AAd3"
+      : "0x336038b39daebF51C8FFA57350F49d9D48D2AAd3",
 
   scanUrl:
     process.env.NODE_ENV === "production"
-      ? "https://rinkeby.etherscan.io/address/0x11A5b3D9113aCD9603134d98263A0A26FEA1D8D4"
-      : "https://rinkeby.etherscan.io/address/0x11A5b3D9113aCD9603134d98263A0A26FEA1D8D4",
+      ? "https://rinkeby.etherscan.io/address/0x336038b39daebF51C8FFA57350F49d9D48D2AAd3"
+      : "https://rinkeby.etherscan.io/address/0x336038b39daebF51C8FFA57350F49d9D48D2AAd3",
   // : "https://mumbai.polygonscan.com/address/your_mumbai_contract_address",
   // 'https://etherscan.io/address/your_ethereum_contract_address'
   // 'https://rinkeby.etherscan.io/address/your_rinkeby_contract_address'

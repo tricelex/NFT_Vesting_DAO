@@ -56,6 +56,11 @@ contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
     mapping(uint256 => uint256) private nestingTotal;
 
     /**
+    @dev Cumulative amount claimable per staker.
+     */
+    mapping(uint256 => uint256) private claimablePerTokenId;
+
+    /**
     @dev MUST only be modified by safeTransferWhileNesting(); if set to 2 then
     the _beforeTokenTransfer() block while nesting is disabled.
      */
@@ -68,12 +73,12 @@ contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
     bool public nestingOpen = false;
 
     /**
-    @dev Emitted when a Moonbird begins nesting.
+    @dev Emitted when a Token begins nesting.
      */
     event Nested(uint256 indexed tokenId);
 
     /**
-    @dev Emitted when a Moonbird stops nesting; either through standard means or
+    @dev Emitted when a Token stops nesting; either through standard means or
     by expulsion.
      */
     event Unnested(uint256 indexed tokenId);
@@ -101,15 +106,15 @@ contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
 
     /**
     
-    {@notice Returns the length of time, in seconds, that the Moonbird has
+    {@notice Returns the length of time, in seconds, that the Token has
     nested.
-    @dev Nesting is tied to a specific Moonbird, not to the owner, so it doesn't
+    @dev Nesting is tied to a specific Token, not to the owner, so it doesn't
     reset upon sale.
-    @return nesting Whether the Moonbird is currently nesting. MAY be true with
+    @return nesting Whether the Token is currently nesting. MAY be true with
     zero current nesting if in the same block as nesting began.
     @return current Zero if not currently nesting, otherwise the length of time
     since the most recent nesting began.
-    @return total Total period of time for which the Moonbird has nested across
+    @return total Total period of time for which the Token has nested across
     its life, including the current period.
     */
     function nestingPeriod(uint256 tokenId)
@@ -138,7 +143,7 @@ contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
     }
 
     /**
-    @notice Changes the Moonbird's nesting status.
+    @notice Changes the Token's nesting status.
     */
     function toggleNesting(uint256 tokenId)
         external
@@ -158,27 +163,17 @@ contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
         }
     }
 
-    //claim reward from fund based on ratio of user's stake against team stake
-    function claimableReward(uint256 tokenId) external returns (uint256) {
-        //elapsed time for claimer
-        uint256 elapsedClaimer = block.timestamp - nestingRestarted[tokenId];
-
-        //total elapsed time for all tokens
-        uint256 totalElapsed;
+    function resetAllNesting() external onlyOwner {
         for (uint256 i; i < totalSupply(); i++) {
             uint256 currentTokenId = tokenByIndex(i);
-            totalElapsed += block.timestamp - nestingStarted[currentTokenId];
+            nestingStarted[currentTokenId] = 0;
         }
+    }
 
-        //return proportion of treasury fund for claimer elapsed against total
-        if (totalElapsed == 0) {
-            return 0;
-        }
-
-        //reset nesting restarted
-        nestingRestarted[tokenId] = block.timestamp;
-
-        return (elapsedClaimer / totalElapsed) * rewardsFund;
+    function claimableReward(uint256 tokenId) external view returns (uint256) {
+        require(claimablePerTokenId[tokenId] != 0, "Nothing to claim");
+        uint256 reward = claimablePerTokenId[tokenId];
+        return reward;
     }
 
     function claimReward(uint256 tokenId)
@@ -210,6 +205,23 @@ contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
         treasuryFund = newBalanceTreasuryFund;
         rewardsFund = newBalanceRewardsFund;
 
+        //total elapsed time for all tokens
+        uint256 totalElapsed;
+        for (uint256 i; i < totalSupply(); i++) {
+            uint256 currentTokenId = tokenByIndex(i);
+            totalElapsed += block.timestamp - nestingStarted[currentTokenId];
+        }
+
+        //claimble amount per token
+        for (uint256 i; i < totalSupply(); i++) {
+            uint256 currentTokenId = tokenByIndex(i);
+            uint256 elapsedToken = block.timestamp -
+                nestingStarted[currentTokenId];
+            uint256 tokenClaimableAmount = (elapsedToken / totalElapsed) *
+                _rewardsTransfer;
+            claimablePerTokenId[currentTokenId] = tokenClaimableAmount;
+        }
+
         return (treasuryFund, rewardsFund);
     }
 
@@ -221,7 +233,7 @@ contract NftVestingDao is ERC721Enumerable, ERC721Royalty, Ownable {
     }
 
     /**
-    @notice Transfer a token between addresses while the Moonbird is minting,
+    @notice Transfer a token between addresses while the Token is minting,
     thus not resetting the nesting period.
     */
     function safeTransferWhileNesting(

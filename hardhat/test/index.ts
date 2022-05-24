@@ -194,7 +194,7 @@ describe("NftVestingDao", function () {
     // console.log(total);
 
     const preBalance = await addr1.getBalance();
-    // console.log(preBalance);
+    console.log("preBalance", preBalance);
     const tx = await nftToken.connect(addr1).claimReward(1);
     await tx.wait();
     // var [,current,total] = await nftToken.nestingPeriod(1);
