@@ -62,7 +62,6 @@ export default function Header() {
                 effect="solid"
                 textColor="#e2e8f0"
               />
-              </a>
               <a
                 href={projectConfig.openseaCollectionUrl}
                 aria-label={`${projectConfig.nftName} on OpenSea`}
